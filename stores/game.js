@@ -16,7 +16,7 @@ export const useGameStore = defineStore("game", {
             balut: 1.892,
             straight: 2.364,
         },
-        attemptsHistory: [] // для графика
+        attemptsHistory: []
     }),
 
     actions: {
@@ -89,7 +89,6 @@ export const useGameStore = defineStore("game", {
             return { name: "No combo", multiplier: 0, win: 0 };
         },
 
-        // 🔹 новый метод для симуляции RTP
         simulateRTP(rounds = 100000) {
             let simBets = 0;
             let simWins = 0;
