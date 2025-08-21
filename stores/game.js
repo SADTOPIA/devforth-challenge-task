@@ -42,7 +42,7 @@ export const useGameStore = defineStore("game", {
                 const result = this.checkCombination(this.dice, betAmount);
 
                 const pureWin = result.win;
-                const payout = betAmount + pureWin;
+                const payout = pureWin;
 
                 if (payout > 0) {
                     this.balance = +(this.balance + payout).toFixed(2);
@@ -71,43 +71,38 @@ export const useGameStore = defineStore("game", {
             const round2 = (n) => +(n.toFixed(2));
             const uniqSorted = [...new Set(arr)].sort((a, b) => a - b);
 
-
             if (values[0] === 5) {
                 const m = this.odds.balut;
-                return { name: "Balut", multiplier: m, win: round2(betAmount * (m - 1)) };
+                return { name: "Balut", multiplier: m, win: round2(betAmount * m )};
             }
-
 
             if (uniqSorted.length === 5) {
                 const s = uniqSorted.join("");
                 if (s === "12345" || s === "23456") {
                     const m = this.odds.straight;
-                    return { name: "Straight", multiplier: m, win: round2(betAmount * (m - 1)) };
+                    return { name: "Straight", multiplier: m, win: round2(betAmount * m )};
                 }
             }
 
-
             if (values[0] === 3 && values[1] === 2) {
                 const m = this.odds.fullHouse;
-                return { name: "Full House", multiplier: m, win: round2(betAmount * (m - 1)) };
+                return { name: "Full House", multiplier: m, win: round2(betAmount * m ) };
             }
-
 
             if (values[0] === 3) {
                 const m = this.odds.triple;
-                return { name: "Triple", multiplier: m, win: round2(betAmount * (m - 1)) };
+                return { name: "Triple", multiplier: m, win: round2(betAmount * m ) };
             }
-
 
             if (values[0] === 2) {
                 const m = this.odds.pair;
-                return { name: "Pair", multiplier: m, win: round2(betAmount * (m - 1)) };
+                return { name: "Pair", multiplier: m, win: round2(betAmount * m ) };
             }
 
             return { name: "No combo", multiplier: 0, win: 0 };
         },
 
-        simulateRTP(rounds = 100000) {
+        simulateRTP(rounds = 100) {
             let simBets = 0;
             let simWins = 0;
             const stats = { Pair: 0, Triple: 0, "Full House": 0, Straight: 0, Balut: 0 };
@@ -122,6 +117,7 @@ export const useGameStore = defineStore("game", {
             }
 
             const rtp = (simWins / simBets) * 100;
+
             const msg = [
                 `Simulated ${rounds.toLocaleString()} rounds.`,
                 `RTP ≈ ${rtp.toFixed(2)}%`,
