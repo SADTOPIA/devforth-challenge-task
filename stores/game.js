@@ -11,10 +11,10 @@ export const useGameStore = defineStore("game", {
         totalWins: 0,
         rtp: 0,
         odds: {
-            pair: 0.946,
-            fullHouse: 1.419,
-            balut: 1.892,
-            straight: 2.364,
+            pair: 2,
+            fullHouse: 3,
+            balut: 4,
+            straight: 5,
         },
         attemptsHistory: []
     }),
@@ -40,19 +40,22 @@ export const useGameStore = defineStore("game", {
                 this.dice = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6) + 1);
                 const result = this.checkCombination(this.dice, betAmount);
 
-                this.balance = +(this.balance + result.win).toFixed(2);
-                this.totalWins = +(this.totalWins + result.win).toFixed(2);
-                this.rtp = this.totalBets > 0 ? (this.totalWins / this.totalBets) * 100 : 0;
-                this.rolling = false;
+                const payout = result.win;
 
+                this.balance = +(this.balance + payout).toFixed(2);
+                this.totalWins = +(this.totalWins + payout).toFixed(2);
+
+                this.rtp = this.totalBets > 0 ? (this.totalWins / this.totalBets) * 100 : 0;
+
+                this.rolling = false;
                 this.attemptsHistory.push({
                     attempt: this.attemptsHistory.length + 1,
                     balance: this.balance
                 });
 
-                this.message = result.win > 0
-                    ? `You won ${result.win.toFixed(2)}!  (${result.name}, x${result.multiplier.toFixed(2)})`
-                    : "No win ";
+                this.message = payout > 0
+                  ? `You won ${payout.toFixed(2)}!  (${result.name}, x${result.multiplier.toFixed(2)})`
+                  : "No win ";
             }, 1600);
         },
 
@@ -64,7 +67,7 @@ export const useGameStore = defineStore("game", {
 
             if (values[0] === 5) {
                 const m = this.odds.balut;
-                return { name: "Balut", multiplier: round2(m), win: round2(betAmount * m) };
+                return { name: "Balut", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
             }
 
             const uniqSorted = [...new Set(arr)].sort((a, b) => a - b);
@@ -72,22 +75,23 @@ export const useGameStore = defineStore("game", {
                 const s = uniqSorted.join("");
                 if (s === "12345" || s === "23456") {
                     const m = this.odds.straight;
-                    return { name: "Straight", multiplier: round2(m), win: round2(betAmount * m) };
+                    return { name: "Straight", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
                 }
             }
 
             if (values[0] === 3 && values[1] === 2) {
                 const m = this.odds.fullHouse;
-                return { name: "Full House", multiplier: round2(m), win: round2(betAmount * m) };
+                return { name: "Full House", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
             }
 
             if (values[0] >= 2) {
                 const m = this.odds.pair;
-                return { name: "Pair", multiplier: round2(m), win: round2(betAmount * m) };
+                return { name: "Pair", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
             }
 
             return { name: "No combo", multiplier: 0, win: 0 };
         },
+
 
         simulateRTP(rounds = 100000) {
             let simBets = 0;
