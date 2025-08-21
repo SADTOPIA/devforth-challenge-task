@@ -33,19 +33,23 @@
           <div class="prices-content">
             <div class="price-row">
               <span class="name">Pair</span>
-              <span class="multiplier">x{{ game.odds.pair.toFixed(3) }}</span>
+              <span class="multiplier">x{{ game.odds.pair }}</span>
+            </div>
+            <div class="price-row">
+              <span class="name">Triple</span>
+              <span class="multiplier">x{{ game.odds.triple }}</span>
             </div>
             <div class="price-row">
               <span class="name">Full House</span>
-              <span class="multiplier">x{{ game.odds.fullHouse.toFixed(3) }}</span>
+              <span class="multiplier">x{{ game.odds.fullHouse }}</span>
             </div>
             <div class="price-row">
               <span class="name">Balut</span>
-              <span class="multiplier">x{{ game.odds.balut.toFixed(3) }}</span>
+              <span class="multiplier">x{{ game.odds.balut }}</span>
             </div>
             <div class="price-row">
               <span class="name">Straight</span>
-              <span class="multiplier">x{{ game.odds.straight.toFixed(3) }}</span>
+              <span class="multiplier">x{{ game.odds.straight }}</span>
             </div>
           </div>
         </div>

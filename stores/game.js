@@ -12,6 +12,7 @@ export const useGameStore = defineStore("game", {
         rtp: 0,
         odds: {
             pair: 2,
+            triple: 2.5,
             fullHouse: 3,
             balut: 4,
             straight: 5,
@@ -40,10 +41,14 @@ export const useGameStore = defineStore("game", {
                 this.dice = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6) + 1);
                 const result = this.checkCombination(this.dice, betAmount);
 
-                const payout = result.win;
+                const pureWin = result.win;
+                const payout = betAmount + pureWin;
 
-                this.balance = +(this.balance + payout).toFixed(2);
-                this.totalWins = +(this.totalWins + payout).toFixed(2);
+                if (payout > 0) {
+                    this.balance = +(this.balance + payout).toFixed(2);
+                }
+
+                this.totalWins = +(this.totalWins + pureWin).toFixed(2);
 
                 this.rtp = this.totalBets > 0 ? (this.totalWins / this.totalBets) * 100 : 0;
 
@@ -53,8 +58,8 @@ export const useGameStore = defineStore("game", {
                     balance: this.balance
                 });
 
-                this.message = payout > 0
-                  ? `You won ${payout.toFixed(2)}!  (${result.name}, x${result.multiplier.toFixed(2)})`
+                this.message = pureWin > 0
+                  ? `You won ${(payout).toFixed(2)}!  (${result.name}, x${result.multiplier.toFixed(2)})`
                   : "No win ";
             }, 1600);
         },
@@ -64,60 +69,67 @@ export const useGameStore = defineStore("game", {
             arr.forEach(d => counts[d] = (counts[d] || 0) + 1);
             const values = Object.values(counts).sort((a, b) => b - a);
             const round2 = (n) => +(n.toFixed(2));
+            const uniqSorted = [...new Set(arr)].sort((a, b) => a - b);
+
 
             if (values[0] === 5) {
                 const m = this.odds.balut;
-                return { name: "Balut", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
+                return { name: "Balut", multiplier: m, win: round2(betAmount * (m - 1)) };
             }
 
-            const uniqSorted = [...new Set(arr)].sort((a, b) => a - b);
+
             if (uniqSorted.length === 5) {
                 const s = uniqSorted.join("");
                 if (s === "12345" || s === "23456") {
                     const m = this.odds.straight;
-                    return { name: "Straight", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
+                    return { name: "Straight", multiplier: m, win: round2(betAmount * (m - 1)) };
                 }
             }
 
+
             if (values[0] === 3 && values[1] === 2) {
                 const m = this.odds.fullHouse;
-                return { name: "Full House", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
+                return { name: "Full House", multiplier: m, win: round2(betAmount * (m - 1)) };
             }
 
-            if (values[0] >= 2) {
+
+            if (values[0] === 3) {
+                const m = this.odds.triple;
+                return { name: "Triple", multiplier: m, win: round2(betAmount * (m - 1)) };
+            }
+
+
+            if (values[0] === 2) {
                 const m = this.odds.pair;
-                return { name: "Pair", multiplier: round2(m), win: round2(betAmount * (m - 1)) };
+                return { name: "Pair", multiplier: m, win: round2(betAmount * (m - 1)) };
             }
 
             return { name: "No combo", multiplier: 0, win: 0 };
         },
 
-
         simulateRTP(rounds = 100000) {
             let simBets = 0;
             let simWins = 0;
-            const stats = { Pair: 0, "Full House": 0, Straight: 0, Balut: 0 };
+            const stats = { Pair: 0, Triple: 0, "Full House": 0, Straight: 0, Balut: 0 };
 
             for (let i = 0; i < rounds; i++) {
                 const dice = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6) + 1);
                 const betAmount = 1;
                 const result = this.checkCombination(dice, betAmount);
-
                 simBets += betAmount;
                 simWins += result.win;
-
                 if (stats[result.name] !== undefined) stats[result.name]++;
             }
 
             const rtp = (simWins / simBets) * 100;
-
             const msg = [
                 `Simulated ${rounds.toLocaleString()} rounds.`,
                 `RTP ≈ ${rtp.toFixed(2)}%`,
                 `Pair: ${(stats["Pair"] / rounds * 100).toFixed(2)}%`,
+                `Triple: ${(stats["Triple"] / rounds * 100).toFixed(2)}%`,
                 `Full House: ${(stats["Full House"] / rounds * 100).toFixed(2)}%`,
                 `Straight: ${(stats["Straight"] / rounds * 100).toFixed(2)}%`,
-                `Balut: ${(stats["Balut"] / rounds * 100).toFixed(3)}%`
+                `Balut: ${(stats["Balut"] / rounds * 100).toFixed(3)}%`,
             ].join("\n");
 
             return msg;
