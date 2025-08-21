@@ -89,20 +89,25 @@ export const useGameStore = defineStore("game", {
                 return { name: "Full House", multiplier: m, win: round2(betAmount * m ) };
             }
 
-            if (values[0] === 3) {
+            if (values[0] >= 3 ) {
                 const m = this.odds.triple;
                 return { name: "Triple", multiplier: m, win: round2(betAmount * m ) };
             }
 
             if (values[0] === 2) {
+                const pairsCount = values.filter(v => v === 2).length;
                 const m = this.odds.pair;
-                return { name: "Pair", multiplier: m, win: round2(betAmount * m ) };
+                return {
+                    name: pairsCount === 2 ? "Two Pairs" : "Pair",
+                    multiplier: m,
+                    win: round2(betAmount * m )
+                };
             }
 
             return { name: "No combo", multiplier: 0, win: 0 };
         },
 
-        simulateRTP(rounds = 100) {
+        simulateRTP(rounds = 100000) {
             let simBets = 0;
             let simWins = 0;
             const stats = { Pair: 0, Triple: 0, "Full House": 0, Straight: 0, Balut: 0 };
