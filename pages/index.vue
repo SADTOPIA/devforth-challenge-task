@@ -1,10 +1,16 @@
 <template>
-  <div></div>
+  <div>
+
+  </div>
 </template>
 
 <script setup>
-definePageMeta({
-  layout: "game"
-});
+import { navigateTo } from '#app'
+
+navigateTo('/game', { redirectCode: 302 })
 </script>
 
+
+<style scoped>
+
+</style>

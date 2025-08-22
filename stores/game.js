@@ -94,14 +94,10 @@ export const useGameStore = defineStore("game", {
                 return { name: "Triple", multiplier: m, win: round2(betAmount * m ) };
             }
 
-            if (values[0] === 2) {
-                const pairsCount = values.filter(v => v === 2).length;
+            const hasPair = values.filter(v => v === 2).length >= 1; // есть хотя бы одна пара (или две)
+            if (hasPair) {
                 const m = this.odds.pair;
-                return {
-                    name: pairsCount === 2 ? "Two Pairs" : "Pair",
-                    multiplier: m,
-                    win: round2(betAmount * m )
-                };
+                return { name: "Pair", multiplier: m, win: round2(betAmount * m) };
             }
 
             return { name: "No combo", multiplier: 0, win: 0 };
